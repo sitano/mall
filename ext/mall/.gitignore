@@ -1,0 +1,5 @@
+Makefile
+mall.c
+*.log
+*.o
+*.so

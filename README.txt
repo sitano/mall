@@ -1,0 +1,74 @@
+= Mall - access the mallinfo(3) and mallopt(3) functions
+
+* http://bogomips.org/mall
+
+== DESCRIPTION:
+
+This library provides access to the mallinfo(3) and mallopt(3)
+functions.  mallinfo(3) is used for reporting malloc statistics and
+mallopt(3) can be used to tune malloc(3) implementations.  See the
+corresponding documentation for the C library functions before
+proceeding.
+
+These functions are implementation-specific, so tuning options that
+work for one implementation of malloc may not work at all for another
+implementation.
+
+Constants defined in the the malloc.h header with a "M_" prefix are
+defined without the prefix in the Mall namespace (e.g. "M_TRIM_THRESHOLD
+=> Mall::TRIM_THRESHOLD).
+
+
+== FEATURES/PROBLEMS:
+
+* This has only been tested with glibc (ptmalloc2) malloc, although
+  it is likely to work with ptmalloc3.  Reports of success/failure
+  on other systems are greatly appreciated.
+
+* Mall.info does not work reliably when your application using more
+  than 2G of memory (this is probably a bad idea anyways).
+
+* Neither Mall.info nor Mall.opt are supported by all malloc
+  implementations, nor are all constants always defined or useful
+  if they're defined.
+
+* Constants and functionality are defined at build time, so changing
+  your malloc implementation may require rebuilding and reinstalling
+  this library.
+
+== SYNOPSIS:
+
+  # Assuming a glibc/ptmalloc system:
+
+  require 'mall'
+
+  Mall.opt(Mall::TRIM_THRESHOLD, 1024*1024)
+  Mall.opt(Mall::TOP_PAD, 1024*1024)
+  Mall.opt(Mall::MXFAST, 80)
+
+  hash = Mall.info
+
+== REQUIREMENTS:
+
+* A malloc implementation supporting mallinfo(3) and/or mallopt(3).
+
+== INSTALL:
+
+* gem install mall
+
+== LICENSE:
+
+Copyright (C) 2009 Eric Wong <normalperson@yhbt.net>
+
+Mall is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the
+Free Software Foundation, version 3.0
+
+Mall is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with the GNU C Library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301

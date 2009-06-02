@@ -1,0 +1,76 @@
+#include <ruby.h>
+#include <malloc.h>
+
+static VALUE cMall;
+
+/*
+ * struct mallinfo {
+ *	int arena;    // non-mmapped space allocated from system
+ *	int ordblks;  // number of free chunks
+ *	int smblks;   // number of fastbin blocks
+ *	int hblks;    // number of mmapped regions
+ *	int hblkhd;   // space in mmapped regions
+ *	int usmblks;  // maximum total allocated space
+ *	int fsmblks;  // space available in freed fastbin blocks
+ *	int uordblks; // total allocated space
+ *	int fordblks; // total free space
+ *	int keepcost; // top-most, releasable (via malloc_trim) space
+ * };
+ */
+
+
+static VALUE info(VALUE klass)
+{
+	VALUE rv = rb_hash_new();
+	struct mallinfo stats = mallinfo(); /* whee aggregate returns :( */
+
+#define MALLINFO_SET(KEY) \
+	rb_hash_aset(rv, ID2SYM(rb_intern(#KEY)), INT2FIX(stats.KEY))
+
+	MALLINFO_SET(arena);
+	MALLINFO_SET(ordblks);
+	MALLINFO_SET(smblks);
+	MALLINFO_SET(hblks);
+	MALLINFO_SET(hblkhd);
+	MALLINFO_SET(usmblks);
+	MALLINFO_SET(fsmblks);
+	MALLINFO_SET(uordblks);
+	MALLINFO_SET(fordblks);
+	MALLINFO_SET(keepcost);
+
+#undef MALLINFO_SET
+
+	return rv;
+}
+
+/*
+ * some malloc implementations may not like mallopt() being called after
+ * malloc has been initialized (first call to malloc()).  This is not
+ * the case with glibc malloc.
+ */
+static VALUE opt(VALUE klass, VALUE param, VALUE value)
+{
+	int rv = mallopt(FIX2INT(param), FIX2INT(value));
+
+	return rv == 0 ? Qfalse : Qtrue;
+}
+
+void Init_mall(void)
+{
+	cMall = rb_define_class("Mall", rb_cObject);
+	rb_define_singleton_method(cMall, "opt", opt, 2);
+	rb_define_singleton_method(cMall, "info", info, 0);
+
+<% %w(
+mxfast nlblks grain keep
+trim_threshold top_pad mmap_threshold mmap_max
+check_action perturb
+).each { |opt|
+  opt.upcase!
+  m_opt = "M_#{opt}"
+%>
+#ifdef <%= m_opt %>
+        rb_define_const(cMall, "<%= opt %>", INT2FIX(<%= m_opt %>));
+#endif /* <%= m_opt %> */
+<% } %>
+}
