@@ -16,4 +16,7 @@ clean:
 test: ext/mall/mall.so
 	ruby -Iext/mall -rmall test/test_mall.rb
 
-.PHONY: test
+# using rdoc 2.4.1
+doc: .document
+	rdoc -Na -m README.txt -t "$(shell sed -ne '1s/^= //p' README.txt)"
+.PHONY: test doc

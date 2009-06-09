@@ -15,9 +15,8 @@ work for one implementation of malloc may not work at all for another
 implementation.
 
 Constants defined in the the malloc.h header with a "M_" prefix are
-defined without the prefix in the Mall namespace (e.g. "M_TRIM_THRESHOLD
-=> Mall::TRIM_THRESHOLD).
-
+defined without the prefix in the Mall namespace (e.g.
+M_TRIM_THRESHOLD => Mall::TRIM_THRESHOLD).
 
 == FEATURES/PROBLEMS:
 
@@ -55,6 +54,17 @@ defined without the prefix in the Mall namespace (e.g. "M_TRIM_THRESHOLD
 == INSTALL:
 
 * gem install mall
+
+== SOURCE:
+
+The source code is available via git:
+
+  git://git.bogomips.org/mall.git
+  http://git.bogomips.org/mall.git
+
+cgit repository viewer:
+
+* http://git.bogomips.org/cgit/mall.git (cgit)
 
 == LICENSE:
 
