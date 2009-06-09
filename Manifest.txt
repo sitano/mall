@@ -1,3 +1,5 @@
+.document
+.gitignore
 GNUmakefile
 History.txt
 LICENSE.txt
@@ -7,4 +9,5 @@ Rakefile
 ext/mall/.gitignore
 ext/mall/extconf.rb
 ext/mall/mall.c.erb
+setup.rb
 test/test_mall.rb
