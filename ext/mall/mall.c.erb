@@ -66,6 +66,14 @@ static VALUE trim(VALUE klass, VALUE pad)
 }
 #endif /* HAVE_MALLOC_TRIM */
 
+#ifdef HAVE_MALLOC_STATS
+static VALUE dump_stats(VALUE klass)
+{
+	malloc_stats();
+	return Qnil;
+}
+#endif /* HAVE_MALLOC_STATS */
+
 void Init_mall(void)
 {
 	cMall = rb_define_class("Mall", rb_cObject);
@@ -74,6 +82,9 @@ void Init_mall(void)
 #ifdef HAVE_MALLOC_TRIM
 	rb_define_singleton_method(cMall, "trim", trim, 1);
 #endif /* HAVE_MALLOC_TRIM */
+#ifdef HAVE_MALLOC_STATS
+	rb_define_singleton_method(cMall, "dump_stats", dump_stats, 0);
+#endif /* HAVE_MALLOC_STATS */
 
 <% %w(
 mxfast nlblks grain keep

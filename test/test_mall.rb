@@ -1,3 +1,4 @@
+require "tempfile"
 require "test/unit"
 require "mall"
 
@@ -24,6 +25,23 @@ class TestMall < Test::Unit::TestCase
       assert(TrueClass === rv || FalseClass === rv)
     else
       warn "Mall.trim not supported"
+    end
+  end
+
+  def test_dump_stats
+    if Mall.respond_to?(:dump_stats)
+      olderr = $stderr.dup
+      begin
+        tmp = Tempfile.new('mall_dump_stats')
+        $stderr.sync = tmp.sync = true
+        $stderr.reopen(tmp)
+        assert_nil Mall.dump_stats
+        assert tmp.stat.size != 0
+      ensure
+        $stderr.reopen(olderr)
+      end
+    else
+      warn "Mall.dump_stats not supported"
     end
   end
 
