@@ -11,6 +11,6 @@ if st_c.nil? || st_c.ctime < st_r.ctime
 end
 
 have_header('malloc.h') or abort "malloc.h header missing"
-have_type('struct mallinfo', 'malloc.h') or warn 'struct mallinfo missing'
+have_type('struct mallinfo', 'malloc.h') or abort 'struct mallinfo missing'
 dir_config('mall')
 create_makefile('mall')
