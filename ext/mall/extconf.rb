@@ -12,5 +12,6 @@ end
 
 have_header('malloc.h') or abort "malloc.h header missing"
 have_type('struct mallinfo', 'malloc.h') or abort 'struct mallinfo missing'
+have_func('malloc_trim', 'malloc.h')
 dir_config('mall')
 create_makefile('mall')

@@ -18,4 +18,13 @@ class TestMall < Test::Unit::TestCase
     }
   end
 
+  def test_trim
+    if Mall.respond_to?(:trim)
+      rv = Mall.trim(1024)
+      assert(TrueClass === rv || FalseClass === rv)
+    else
+      warn "Mall.trim not supported"
+    end
+  end
+
 end

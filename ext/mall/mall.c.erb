@@ -55,11 +55,25 @@ static VALUE opt(VALUE klass, VALUE param, VALUE value)
 	return rv == 0 ? Qfalse : Qtrue;
 }
 
+#ifdef HAVE_MALLOC_TRIM
+static VALUE trim(VALUE klass, VALUE pad)
+{
+	unsigned long tmp = NUM2ULONG(pad);
+	int rv = malloc_trim((size_t)tmp);
+
+	return rv == 1 ? Qtrue : Qfalse;
+	return Qfalse;
+}
+#endif /* HAVE_MALLOC_TRIM */
+
 void Init_mall(void)
 {
 	cMall = rb_define_class("Mall", rb_cObject);
 	rb_define_singleton_method(cMall, "opt", opt, 2);
 	rb_define_singleton_method(cMall, "info", info, 0);
+#ifdef HAVE_MALLOC_TRIM
+	rb_define_singleton_method(cMall, "trim", trim, 1);
+#endif /* HAVE_MALLOC_TRIM */
 
 <% %w(
 mxfast nlblks grain keep
