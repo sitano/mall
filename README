@@ -55,9 +55,9 @@ M_TRIM_THRESHOLD => Mall::TRIM_THRESHOLD).
 
 The source code is available via git:
 
-  git://git.bogomips.org/mall.git
-  http://git.bogomips.org/mall.git
+  git://bogomips.org/mall.git
+  http://bogomips.org/mall.git
 
 cgit repository viewer:
 
-* http://git.bogomips.org/cgit/mall.git (cgit)
+* http://bogomips.org/mall.git (cgit)

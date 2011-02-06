@@ -1,20 +1,5 @@
 #include <ruby.h>
 #include <malloc.h>
-
-/*
- * struct mallinfo {
- *	int arena;    // non-mmapped space allocated from system
- *	int ordblks;  // number of free chunks
- *	int smblks;   // number of fastbin blocks
- *	int hblks;    // number of mmapped regions
- *	int hblkhd;   // space in mmapped regions
- *	int usmblks;  // maximum total allocated space
- *	int fsmblks;  // space available in freed fastbin blocks
- *	int uordblks; // total allocated space
- *	int fordblks; // total free space
- *	int keepcost; // top-most, releasable (via malloc_trim) space
- * };
- */
 <%
 mallinfo_keys = %w(
 arena
@@ -33,6 +18,32 @@ keepcost
 static VALUE sym_<%= x %>;
 <% } %>
 
+/*
+ * call-seq:
+ * 	Mall.info	-> hash
+ *
+ * Returns a hash with the following keys:
+ *
+ *  :arena      - bytes allocated via sbrk() (and not mmap())
+ *  :ordblks    - number of free (unused) chunks
+ *  :smblks     - number of fastbin blocks[1]
+ *  :hblks      - number of allocated mmap()-ed regions
+ *  :hblkhd     - bytes allocated in mmap()-ed regions
+ *  :usmblks    - maximum total allocated space[1]
+ *  :fsmblks    - space available in freed fastbin blocks[1]
+ *  :uordblks   - total allocated space in use
+ *  :fordblks   - total free space
+ *  :keepcost   - top-most, releasable (via malloc_trim) space
+ *
+ * All values are limited to 32-bit integers.  This uses the limited
+ * mallinfo(3) function, consider using Mall.xml and parsing its output
+ * if you are using glibc (2.10+) with malloc_info(3)
+ *
+ * See also:
+ * http:// gnu.org/software/libc/manual/html_node/Statistics-of-Malloc.html
+ *
+ * [1] - this key is unused by glibc (ptmalloc2)
+ */
 static VALUE info(VALUE klass)
 {
 	VALUE rv = rb_hash_new();
@@ -51,16 +62,20 @@ static VALUE info(VALUE klass)
 	MALLINFO_SET(uordblks);
 	MALLINFO_SET(fordblks);
 	MALLINFO_SET(keepcost);
-
 #undef MALLINFO_SET
-
 	return rv;
 }
 
 /*
+ * call-seq:
+ * 	Mall.opt(Mall::MMAP_THRESHOLD, 128 * 1024)
+ *
  * some malloc implementations may not like mallopt() being called after
  * malloc has been initialized (first call to malloc()).  This is not
  * the case with glibc malloc.
+ *
+ * See also:
+ * http://gnu.org/software/libc/manual/html_node/Malloc-Tunable-Parameters.html
  */
 static VALUE opt(VALUE klass, VALUE param, VALUE value)
 {
@@ -70,6 +85,18 @@ static VALUE opt(VALUE klass, VALUE param, VALUE value)
 }
 
 #ifdef HAVE_MALLOC_TRIM
+/*
+ *  call-seq:
+ *	Mall.trim(pad) => true or false
+ *
+ *  Attempt to trim off the top of the heap and release it back to
+ *  the OS. +pad+ represents the amount of free space (in bytes) to
+ *  leave unreleased for future allocations.
+ *
+ *  Returns true if memory was released and false if not.
+ *
+ *  This method is glibc-specific.
+ */
 static VALUE trim(VALUE klass, VALUE pad)
 {
 	unsigned long tmp = NUM2ULONG(pad);
@@ -81,6 +108,14 @@ static VALUE trim(VALUE klass, VALUE pad)
 #endif /* HAVE_MALLOC_TRIM */
 
 #ifdef HAVE_MALLOC_STATS
+/*
+ * call-seq:
+ * 	Mall.dump_stats
+ *
+ * Dump malloc stats to STDERR
+ *
+ * This calls malloc_stats() internally, a function that is glibc-specific
+ */
 static VALUE dump_stats(VALUE klass)
 {
 	malloc_stats();
@@ -99,6 +134,23 @@ static void xmlerr(FILE *fp, int err, const char *msg)
 	rb_sys_fail(msg);
 }
 
+/*
+ * call-seq:
+ * 	Mall.xml -> XML string
+ * 	Mall.xml(options = 0, io = $stderr) -> io
+ *
+ * Called with no arguments, this returns an XML string suitable for
+ * parsing with your favorite XML parser.
+ *
+ * If specified, +options+ must currently be +0+, but is reserved for
+ * future expansion.
+ *
+ * The second optional argument may be any object that responds to "<<"
+ * so it may be an IO, Array, StringIO, or String object among other
+ * things.
+ *
+ * This relies on malloc_info(3) which is only in glibc 2.10+
+ */
 static VALUE xml(int argc, VALUE *argv, VALUE self)
 {
 	int err;
@@ -134,6 +186,10 @@ static VALUE xml(int argc, VALUE *argv, VALUE self)
 }
 #endif /* HAVE_MALLOC_INFO */
 
+/*
+ * Mall is a single module with several singleton methods, most of which
+ * are glibc-specific.
+ */
 void Init_mall(void)
 {
 	VALUE mMall = rb_define_module("Mall");
@@ -154,16 +210,34 @@ void Init_mall(void)
 	sym_<%= x %> = ID2SYM(rb_intern("<%= x %>"));
 <% } %>
 
-<% %w(
-mxfast nlblks grain keep
-trim_threshold top_pad mmap_threshold mmap_max
-check_action perturb
-).each { |opt|
-  opt.upcase!
+<%
+{
+  :mxfast => 'max request size for "fastbins"',
+  :nlblks => 'unused in glibc',
+  :grain => 'unused in glibc',
+  :keep => 'unused in glibc',
+  :trim_threshold =>
+    'maximum amount of unused memory at the top of the heap' \
+    'to keep before releasing it back to the kernel',
+  :top_pad =>
+    'amount of extra space to allocate when allocating from the heap',
+  :mmap_threshold =>
+    'the request size threshold for using mmap() (instead of sbrk())',
+  :mmap_max =>
+    'the maximum number of active mmap() requests in use at once',
+  :check_action =>
+    'bitmask value used for debug message output (glibc)',
+  :perturb =>
+    'perturb memory allocations with a given byte (for debugging) (glibc)',
+  :arena_test => 'initial number of arenas to allocate (glibc 2.10+)',
+  :arena_max => 'maximum number of arenas to allocate (glibc 2.10+)',
+}.each { |opt, doc|
+  opt = opt.to_s.upcase!
   m_opt = "M_#{opt}"
 %>
 #ifdef <%= m_opt %>
-        rb_define_const(mMall, "<%= opt %>", INT2FIX(<%= m_opt %>));
-#endif /* <%= m_opt %> */
+	/* <%= doc %> */
+	rb_define_const(mMall, "<%= opt %>", INT2FIX(<%= m_opt %>));
+#endif
 <% } %>
 }

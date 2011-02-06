@@ -3,6 +3,7 @@
 /ChangeLog
 /LATEST
 /doc
+/lib
 /tmp
 /GIT-VERSION-FILE
 *.so
