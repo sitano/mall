@@ -46,7 +46,8 @@ lib := $(lib):$(ext_pfx)/$(ext)
 build: $(ext_dl)
 endif
 
-pkg_extra := GIT-VERSION-FILE NEWS ChangeLog LATEST
+manifest_extra := $(pkg_extra)
+pkg_extra += GIT-VERSION-FILE NEWS ChangeLog LATEST
 ChangeLog: GIT-VERSION-FILE .wrongdoc.yml
 	$(WRONGDOC) prepare
 
@@ -54,7 +55,7 @@ manifest:
 	$(RM) .manifest
 	$(MAKE) .manifest
 
-.manifest: ChangeLog
+.manifest: ChangeLog $(manifest_extra)
 	(git ls-files && for i in $@ $(pkg_extra); do echo $$i; done) | \
 		LC_ALL=C sort > $@+
 	cmp $@+ $@ || mv $@+ $@
