@@ -19,5 +19,6 @@ Gem::Specification.new do |s|
   s.rdoc_options = rdoc_options
   s.rubyforge_project = %q{qrp}
   s.test_files = Dir["test/test_*.rb"]
+  s.extensions = %w(ext/mall/extconf.rb)
   s.add_development_dependency(%q<wrongdoc>, "~> 1.5")
 end
