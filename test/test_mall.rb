@@ -4,6 +4,10 @@ require "mall"
 
 class TestMall < Test::Unit::TestCase
 
+  def test_module
+    assert_kind_of Module, Mall
+  end
+
   def test_mallinfo
     assert Hash === Mall.info
     Mall.info.each { |key,value|

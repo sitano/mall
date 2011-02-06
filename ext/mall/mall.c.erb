@@ -1,7 +1,7 @@
 #include <ruby.h>
 #include <malloc.h>
 
-static VALUE cMall;
+static VALUE mMall;
 
 /*
  * struct mallinfo {
@@ -76,14 +76,14 @@ static VALUE dump_stats(VALUE klass)
 
 void Init_mall(void)
 {
-	cMall = rb_define_class("Mall", rb_cObject);
-	rb_define_singleton_method(cMall, "opt", opt, 2);
-	rb_define_singleton_method(cMall, "info", info, 0);
+	mMall = rb_define_module("Mall");
+	rb_define_singleton_method(mMall, "opt", opt, 2);
+	rb_define_singleton_method(mMall, "info", info, 0);
 #ifdef HAVE_MALLOC_TRIM
-	rb_define_singleton_method(cMall, "trim", trim, 1);
+	rb_define_singleton_method(mMall, "trim", trim, 1);
 #endif /* HAVE_MALLOC_TRIM */
 #ifdef HAVE_MALLOC_STATS
-	rb_define_singleton_method(cMall, "dump_stats", dump_stats, 0);
+	rb_define_singleton_method(mMall, "dump_stats", dump_stats, 0);
 #endif /* HAVE_MALLOC_STATS */
 
 <% %w(
@@ -95,7 +95,7 @@ check_action perturb
   m_opt = "M_#{opt}"
 %>
 #ifdef <%= m_opt %>
-        rb_define_const(cMall, "<%= opt %>", INT2FIX(<%= m_opt %>));
+        rb_define_const(mMall, "<%= opt %>", INT2FIX(<%= m_opt %>));
 #endif /* <%= m_opt %> */
 <% } %>
 }
