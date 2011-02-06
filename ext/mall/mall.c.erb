@@ -1,5 +1,6 @@
 #include <ruby.h>
 #include <malloc.h>
+#include <stdio.h>
 <%
 mallinfo_keys = %w(
 arena
@@ -118,14 +119,15 @@ static VALUE trim(VALUE klass, VALUE pad)
  */
 static VALUE dump_stats(VALUE klass)
 {
+	fflush(stderr);
 	malloc_stats();
+	fflush(stderr);
 	return Qnil;
 }
 #endif /* HAVE_MALLOC_STATS */
 
 #ifdef HAVE_MALLOC_INFO
 static ID id_ltlt;
-#include <stdio.h>
 #include <errno.h>
 static void xmlerr(FILE *fp, int err, const char *msg)
 {
