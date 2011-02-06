@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.description = readme_description
   s.email = %q{mall@librelist.org}
   s.extra_rdoc_files = extra_rdoc_files(manifest)
+  s.require_paths = %w(ext)
   s.files = manifest
   s.homepage = Wrongdoc.config[:rdoc_url]
   s.summary = summary
