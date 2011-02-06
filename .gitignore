@@ -3,3 +3,9 @@
 /ChangeLog
 /LATEST
 /doc
+/tmp
+/GIT-VERSION-FILE
+*.so
+*.o
+Makefile
+/.manifest

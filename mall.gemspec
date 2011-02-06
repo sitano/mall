@@ -16,8 +16,7 @@ Gem::Specification.new do |s|
   s.homepage = Wrongdoc.config[:rdoc_url]
   s.summary = summary
   s.rdoc_options = rdoc_options
-  s.require_paths = %w(lib ext)
   s.rubyforge_project = %q{qrp}
-  s.test_files = test_files
-  s.add_development_dependency(%q<wrongdoc>, "~> 1.0.1")
+  s.test_files = Dir["test/test_*.rb"]
+  s.add_development_dependency(%q<wrongdoc>, "~> 1.5")
 end
