@@ -32,6 +32,20 @@ class TestMall < Test::Unit::TestCase
     end
   end
 
+  def test_xml
+    if Mall.respond_to?(:xml)
+      str = Mall.xml
+      assert_match /<malloc version=/, str
+
+      tmp = []
+      assert_equal tmp, Mall.xml(0, tmp)
+      assert_match /<malloc version=/, tmp[0]
+      assert_equal 1, tmp.size
+    else
+      warn "Mall.xml not supported"
+    end
+  end
+
   def test_dump_stats
     if Mall.respond_to?(:dump_stats)
       olderr = $stderr.dup

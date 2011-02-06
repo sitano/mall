@@ -90,6 +90,52 @@ static VALUE dump_stats(VALUE klass)
 }
 #endif /* HAVE_MALLOC_STATS */
 
+#ifdef HAVE_MALLOC_INFO
+static ID id_ltlt;
+#include <stdio.h>
+#include <errno.h>
+static void xmlerr(FILE *fp, int err, const char *msg)
+{
+	fclose(fp);
+	errno = err ? err : EIO; /* gotta have something */
+	rb_sys_fail(msg);
+}
+
+static VALUE xml(int argc, VALUE *argv, VALUE self)
+{
+	int err;
+	long len;
+	VALUE options, out, buf;
+	int xoptions;
+	FILE *fp;
+
+	rb_scan_args(argc, argv, "02", &options, &out);
+	xoptions = NIL_P(options) ? 0 : NUM2INT(options);
+
+	fp = tmpfile();
+	if (fp == NULL)
+		rb_sys_fail("tmpfile");
+
+	err = malloc_info(xoptions, fp);
+	if (err != 0)
+		xmlerr(fp, err, "malloc_info");
+
+	len = ftell(fp);
+	if (len < 0)
+		xmlerr(fp, errno, "ftell");
+
+	rewind(fp);
+	buf = rb_str_new(0, len);
+	if (fread(RSTRING_PTR(buf), 1, len, fp) != len)
+		xmlerr(fp, ferror(fp), "fread");
+	fclose(fp);
+
+	if (NIL_P(out))
+		return buf;
+	return rb_funcall(out, id_ltlt, 1, buf);
+}
+#endif /* HAVE_MALLOC_INFO */
+
 void Init_mall(void)
 {
 	mMall = rb_define_module("Mall");
@@ -101,6 +147,11 @@ void Init_mall(void)
 #ifdef HAVE_MALLOC_STATS
 	rb_define_singleton_method(mMall, "dump_stats", dump_stats, 0);
 #endif /* HAVE_MALLOC_STATS */
+#ifdef HAVE_MALLOC_INFO
+	id_ltlt = rb_intern("<<");
+	rb_define_singleton_method(mMall, "xml", xml, -1);
+#endif /* HAVE_MALLOC_INFO*/
+
 <% mallinfo_keys.each { |x| %>
 	sym_<%= x %> = ID2SYM(rb_intern("<%= x %>"));
 <% } %>
