@@ -178,7 +178,7 @@ static VALUE xml(int argc, VALUE *argv, VALUE self)
 
 	rewind(fp);
 	buf = rb_str_new(0, len);
-	if (fread(RSTRING_PTR(buf), 1, len, fp) != len)
+	if (fread(RSTRING_PTR(buf), 1, len, fp) != (size_t)len)
 		xmlerr(fp, ferror(fp), "fread");
 	fclose(fp);
 
