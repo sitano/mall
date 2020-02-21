@@ -1,11 +1,10 @@
 all::
-RSYNC_DEST := bogomips.org:/srv/bogomips/mall
+RSYNC_DEST := yhbt.net:/srv/yhbt/mall
 mall_c := ext/mall/mall.c
 pkg_extra += $(mall_c)
 $(mall_c): $(mall_c).erb
 	erb < $< > $@+
 	mv $@+ $@
-rfproject := qrp
 rfpackage := mall
 doc:: $(mall_c)
 include pkg.mk
