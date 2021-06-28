@@ -16,11 +16,21 @@ this library.
 
 == Install
 
-  gem install mall
+  git clone https://github.com/sitano/mall.git && cd mall && git co ivan
+  gem build mall.gemspec
+  gem install mall-1.0.2.gem
+
+or add
+
+  gem 'mall', git: 'https://github.com/sitano/mall.git', branch: 'ivan'
+
+and then:
+
+  $ bundle install
 
 == SOURCE:
 
-The source code is available via git:
+The original source code is available via git:
 
   git://yhbt.net/mall.git
   http://yhbt.net/mall.git

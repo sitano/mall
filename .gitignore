@@ -10,3 +10,4 @@
 *.o
 Makefile
 /.manifest
+/.tool-versions
