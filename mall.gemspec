@@ -4,7 +4,7 @@ manifest = File.exist?('.manifest') ?
 Gem::Specification.new do |s|
   s.name = %q{mall}
   s.version = (ENV["VERSION"] || '1.0.2').dup
-  s.authors = ["#{name} hackers"]
+  s.authors = ["#{s.name} hackers"]
   s.description = File.read('README').split("\n\n")[1]
   s.email = %q{mall@yhbt.net}
   s.extra_rdoc_files = IO.readlines('.document').map!(&:chomp!).keep_if do |f|
