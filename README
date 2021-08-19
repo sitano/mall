@@ -52,6 +52,11 @@ See `man 3 mallinfo2` (https://man7.org/linux/man-pages/man3/mallinfo.3.html).
   the ptmalloc-family of allocators used by glibc is recommended
   and the only tested implementation.
 
+== Build
+
+  gem install rake-compiler
+  rake build
+
 == Install
 
   git clone https://github.com/sitano/mall.git && cd mall && git co ivan
